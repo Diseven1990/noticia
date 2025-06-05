@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notícia Completa</title>
+  <style>
+    body { background: #0f0f0f; color: white; font-family: sans-serif; margin: 0; padding: 20px; max-width: 800px; margin: auto; }
+    img { width: 100%; border-radius: 8px; }
+    h1 { margin-top: 20px; }
+    p { line-height: 1.6; color: #ccc; }
+    a { color: #ff7e26; text-decoration: none; display: inline-block; margin-top: 30px; }
+  </style>
+</head>
+<body>
+  <div id="conteudo">A carregar...</div>
+  <a href="index.html">⬅ Voltar</a>
+  <script>
+    const noticias = [{"id": 1000000000001, "titulo": "Exemplo de Not\u00edcia de Teste", "imagem": "imagens/exemplo.jpg", "corpo": "Este \u00e9 o corpo completo da not\u00edcia de teste para ver se tudo est\u00e1 a funcionar corretamente.", "preview": "Este \u00e9 o corpo completo da not\u00edcia de teste...", "categoria": "Marketing", "data": "2025-06-05T08:54:16.049540Z"}];
+    const params = new URLSearchParams(window.location.search);
+    const id = parseInt(params.get("id"));
+    const noticia = noticias.find(n => n.id === id);
+    if (noticia) {
+      document.getElementById("conteudo").innerHTML = `
+        <img src="${noticia.imagem}" alt="${noticia.titulo}">
+        <h1>${noticia.titulo}</h1>
+        <p>${noticia.corpo}</p>
+      `;
+    } else {
+      document.getElementById("conteudo").innerText = "Notícia não encontrada.";
+    }
+  </script>
+</body>
+</html>

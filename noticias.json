@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1000000000001,
+    "titulo": "Exemplo de Not\u00edcia de Teste",
+    "imagem": "imagens/exemplo.jpg",
+    "corpo": "Este \u00e9 o corpo completo da not\u00edcia de teste para ver se tudo est\u00e1 a funcionar corretamente.",
+    "preview": "Este \u00e9 o corpo completo da not\u00edcia de teste...",
+    "categoria": "Marketing",
+    "data": "2025-06-05T08:54:16.049540Z"
+  }
+]
