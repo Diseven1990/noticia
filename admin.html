@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Administração de Notícias</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
+    }
+    h1 { text-align: center; }
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, textarea, select, button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background: #333;
+      color: white;
+      cursor: pointer;
+    }
+    .mensagem {
+      margin-top: 15px;
+      padding: 10px;
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      border-radius: 5px;
+      color: #155724;
+    }
+  </style>
+</head>
+<body>
+<script>
+  if (!location.search.includes('admin=1')) {
+    document.body.innerHTML = '<p style="color:red">❌ Acesso não autorizado</p>';
+    throw new Error('Acesso bloqueado');
+  }
+</script>
+
+<h1>Inserir Nova Notícia</h1>
+
+<form id="formulario">
+  <input type="text" id="titulo" placeholder="Título da notícia" required />
+  <input type="text" id="imagem" placeholder="Nome da imagem (ex: exemplo.jpg)" required />
+  <select id="categoria">
+    <option>Marketing</option>
+    <option>Audiovisuais</option>
+    <option>Videojogos</option>
+    <option>Música</option>
+  </select>
+  <textarea id="corpo" rows="8" placeholder="Corpo do texto" required></textarea>
+  <input type="text" id="token" placeholder="Token GitHub (nunca partilhar)" required />
+  <button type="submit">Guardar no GitHub</button>
+</form>
+
+<div id="mensagem" class="mensagem" style="display:none;">✅ Notícia guardada com sucesso no GitHub!</div>
+
+<script>
+  const repo = "Diseven1990/noticia";
+  const file = "noticias.json";
+  const apiBase = "https://api.github.com/repos/" + repo + "/contents/" + file;
+
+  async function carregarNoticias(token) {
+    const res = await fetch(apiBase, {
+      headers: { Authorization: "token " + token }
+    });
+    const json = await res.json();
+    const content = atob(json.content);
+    return { noticias: JSON.parse(content), sha: json.sha };
+  }
+
+  async function guardarNoticias(novasNoticias, token, sha) {
+    const content = btoa(JSON.stringify(novasNoticias, null, 2));
+    const res = await fetch(apiBase, {
+      method: "PUT",
+      headers: {
+        Authorization: "token " + token,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: "Atualizar notícias",
+        content,
+        sha
+      })
+    });
+    return await res.json();
+  }
+
+  document.getElementById('formulario').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const token = document.getElementById('token').value.trim();
+    if (!token) return alert("⚠️ Introduz o token de acesso pessoal do GitHub");
+
+    const titulo = document.getElementById('titulo').value.trim();
+    const imagem = "imagens/" + document.getElementById('imagem').value.trim();
+    const corpo = document.getElementById('corpo').value.trim();
+    const categoria = document.getElementById('categoria').value;
+    const preview = corpo.slice(0, 150) + (corpo.length > 150 ? "..." : "");
+
+    const novaNoticia = {
+      id: Date.now(),
+      titulo,
+      imagem,
+      corpo,
+      preview,
+      categoria,
+      data: new Date().toISOString()
+    };
+
+    try {
+      const { noticias, sha } = await carregarNoticias(token);
+      noticias.push(novaNoticia);
+      await guardarNoticias(noticias, token, sha);
+      document.getElementById('formulario').reset();
+      document.getElementById('mensagem').style.display = 'block';
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao guardar no GitHub. Verifica o token e permissões.");
+    }
+  });
+</script>
+</body>
+</html>
